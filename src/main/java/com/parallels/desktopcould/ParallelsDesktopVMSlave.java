@@ -63,6 +63,7 @@ public class ParallelsDesktopVMSlave extends Slave
 	{
 		LOGGER.log(Level.SEVERE, "!!! Stop node '" + getNodeName() + "', id '" + vm.getVmid() + "'");
 		connector.stopVM(vm.getVmid());
+		vm.setProvisioned(false);
 	}
 
 	@Extension

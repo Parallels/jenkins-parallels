@@ -76,12 +76,15 @@ public final class ParallelsDesktopCloud extends Cloud
 		for (int i = 0; (i < vms.size()) && (excessWorkload > 0); i++)
 		{
 			final ParallelsDesktopVM vm = vms.get(i);
+			if (vm.isProvisioned())
+				continue;
 			if (!label.matches(Label.parse(vm.getLabels())))
 				continue;
 			final int count = counter.incrementAndGet();
 			final String vmId = vm.getVmid();
 			final String slaveName = "PD Slave #" + count;
 			vm.setSlaveName(slaveName);
+			vm.setProvisioned(true);
 			--excessWorkload;
 			result.add(new NodeProvisioner.PlannedNode(slaveName,
 				Computer.threadPoolForRemoting.submit(new Callable<Node>()

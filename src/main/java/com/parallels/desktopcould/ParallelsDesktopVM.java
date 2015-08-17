@@ -39,6 +39,7 @@ public class ParallelsDesktopVM implements Describable<ParallelsDesktopVM>
 	private String remoteFS;
 	private String slaveName;
 	private ComputerLauncher launcher;
+	private boolean provisioned = false;
 
 	@DataBoundConstructor
 	public ParallelsDesktopVM(String vmid, String labels, String remoteFS, ComputerLauncher launcher)
@@ -77,6 +78,16 @@ public class ParallelsDesktopVM implements Describable<ParallelsDesktopVM>
 	public String getSlaveName()
 	{
 		return slaveName;
+	}
+
+	public void setProvisioned(boolean provisioned)
+	{
+		this.provisioned = provisioned;
+	}
+
+	public boolean isProvisioned()
+	{
+		return provisioned;
 	}
 
 	@Override
