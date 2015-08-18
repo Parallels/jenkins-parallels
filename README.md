@@ -35,12 +35,16 @@ Then make sure that you have Java 1.7.0 or greater on your virtual machines. Oth
 * Scroll down to the "Cloud" Section and press "Add a new cloud"
 * Then configure connection to the host with Parallels Desktop (substitute host name and other parameters to your liking)
 
+![alt tag](https://raw.githubusercontent.com/Parallels/jenkins-parallels/master/src/main/resources/cloud_config.png?token=AGasieKI4XsJMblErXOWrlR2n7QOlyzxks5V3HPqwA%3D%3D)
+
 ### Slave Configuration ###
 
 * In the same "Cloud" section, under "Virtual Machines" press "Add"
 * In Virtual Machine ID you can either spacify VM name or UUID (which you can find from terminal by typing "prlctl list -a")
 * Fill in the rest of config as you would for the regular slave, but skip "Host", since it will be configured dynamically
 * Specify Labels that you will bind "cloud" jobs to
+
+![alt tag](https://raw.githubusercontent.com/Parallels/jenkins-parallels/master/src/main/resources/slave_config.png?token=AGasiSnBRAeyZgiq8VkF3CSicTs97cfyks5V3HPFwA%3D%3D)
 
 ## Usage ##
 
