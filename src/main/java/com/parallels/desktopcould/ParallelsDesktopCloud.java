@@ -76,24 +76,23 @@ public final class ParallelsDesktopCloud extends Cloud
 		for (int i = 0; (i < vms.size()) && (excessWorkload > 0); i++)
 		{
 			final ParallelsDesktopVM vm = vms.get(i);
-			if (label.matches(Label.parse(vm.getLabels())))
-			{
-				final int count = counter.incrementAndGet();
-				final String vmId = vm.getVmid();
-				final String slaveName = "PD Slave #" + count;
-				vm.setSlaveName(slaveName);
-				--excessWorkload;
-				result.add(new NodeProvisioner.PlannedNode(slaveName,
-					Computer.threadPoolForRemoting.submit(new Callable<Node>()
+			if (!label.matches(Label.parse(vm.getLabels())))
+				continue;
+			final int count = counter.incrementAndGet();
+			final String vmId = vm.getVmid();
+			final String slaveName = "PD Slave #" + count;
+			vm.setSlaveName(slaveName);
+			--excessWorkload;
+			result.add(new NodeProvisioner.PlannedNode(slaveName,
+				Computer.threadPoolForRemoting.submit(new Callable<Node>()
+				{
+					@Override
+					public Node call() throws Exception
 					{
-						@Override
-						public Node call() throws Exception 
-						{
-							connector.checkVmExists(vmId);
-							return connector.createSlaveOnVM(vm);
-						}
-					}), 1));
-			}
+						connector.checkVmExists(vmId);
+						return connector.createSlaveOnVM(vm);
+					}
+				}), 1));
 		}
 		return result;
 	}
