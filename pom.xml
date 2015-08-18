@@ -32,7 +32,7 @@ THE SOFTWARE.
 	</parent>
 	<groupId>com.parallels</groupId>
 	<artifactId>parallels-desktop</artifactId>
-	<version>0.0</version>
+	<version>0.1</version>
 	<packaging>hpi</packaging>
 
 	<name>Parallels Desktop Cloud</name>
