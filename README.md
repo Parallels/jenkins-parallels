@@ -52,7 +52,11 @@ Now in any of the build jobs you can set Labels to one of those you configured i
 
 When your job is scheduled and there are not enough executors to perform the build, the plugin will find a suitable virtual machine, start it and use it to build the job. Then after approximately 1 minute of inactivity the VM will be stopped.
 
-## FAQ ##
+## FAQ/Troubleshooting ##
+
+Q: "Host" field in Cloud configuration goes blank after I save and re-open Jenkins configuration
+
+A: It is a known problem, that we are working on. Your changes are saved properly, just not being displayed.
 
 ## Bugs, Pull Requests and Contacts ##
 
