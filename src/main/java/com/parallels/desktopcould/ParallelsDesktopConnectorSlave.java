@@ -68,5 +68,11 @@ public class ParallelsDesktopConnectorSlave extends Slave
 		{
 			return "Parallels Desktop connector slave";
 		}
+
+		@Override
+		public boolean isInstantiable()
+		{
+			return false;
+		}
 	}
 }

@@ -74,5 +74,11 @@ public class ParallelsDesktopVMSlave extends Slave
 		{
 			return "Parallels Desktop VM slave";
 		}
+
+		@Override
+		public boolean isInstantiable()
+		{
+			return false;
+		}
 	}
 }
