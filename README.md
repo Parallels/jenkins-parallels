@@ -11,21 +11,44 @@ Guest OS support:
 
 Requirements:
 * [Jenkins LTS](https://jenkins-ci.org/changelog-stable), 1.609.2 or later. Previous versions may work, but are not tested
-* [Parallels Desktop 11](http://www.parallels.com/products/desktop/) Professional or Business edition
+* [Parallels Desktop 11](http://www.parallels.com/products/desktop/) Pro or Business edition
 
 ## Installation ##
 
 This plugin is not yet available in the jenkins plugin "hub", but it will be there really soon. Until that time, you can install the plugin easily by uploading the binary to Jenkins through Plugin Manager UI.
 
 To do this:
-* Download the binary release here: [parallels-desktop.hpi](https://github.com/Parallels/jenkins-parallels/releases/download/v0.0/parallels-desktop.hpi)
+* Download the binary release here: [parallels-desktop.hpi](https://github.com/Parallels/jenkins-parallels/releases/download/v0.1.0/parallels-desktop.hpi)
 * Go to Manage Jenkins->Manage Plugins
 * Switch to "Advanced" tab
 * In the "Upload Plugin" section, pick the binary downloaded in the first step and press "Upload"
 
 ## Configuration ##
 
+First you need to configure a host machine on which Parallels Desktop is installed. Enable "Remote Login" in OS X "Sharing" settings to allow incoming SSH connections.
+
+Then make sure that you have Java 1.7.0 or greater on your virtual machines. Otherwise jenkins will be unable to start slaves on them.
+
+### Cloud Configuration ###
+
+* Go to Manage Jenkins->Configure System
+* Scroll down to the "Cloud" Section and press "Add a new cloud"
+* Then configure connection to the host with Parallels Desktop (substitute host name and other parameters to your liking)
+
+### Slave Configuration ###
+
+* In the same "Cloud" section, under "Virtual Machines" press "Add"
+* In Virtual Machine ID you can either spacify VM name or UUID (which you can find from terminal by typing "prlctl list -a")
+* Fill in the rest of config as you would for the regular slave, but skip "Host", since it will be configured dynamically
+* Specify Labels that you will bind "cloud" jobs to
+
 ## Usage ##
+
+Now in any of the build jobs you can set Labels to one of those you configured in your VMs during Slave Configuration step.
+
+When your job is scheduled and there are not enough executors to perform the build, the plugin will find a suitable virtual machine, start it and use it to build the job. Then after approximately 1 minute of inactivity the VM will be stopped.
+
+## FAQ ##
 
 ## Bugs, Pull Requests and Contacts ##
 
