@@ -38,8 +38,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import java.util.concurrent.ExecutionException;
-import java.lang.Thread;
 import jenkins.security.MasterToSlaveCallable;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
@@ -77,15 +75,7 @@ public class ParallelsDesktopConnectorSlaveComputer extends SlaveComputer
 			}
 			return true;
 		}
-		catch (IOException ex)
-		{
-			LOGGER.log(Level.SEVERE, ex.toString());
-		}
-		catch (InterruptedException ex)
-		{
-			LOGGER.log(Level.SEVERE, ex.toString());
-		}
-		catch (ExecutionException ex)
+		catch (Exception ex)
 		{
 			LOGGER.log(Level.SEVERE, ex.toString());
 		}
@@ -118,7 +108,7 @@ public class ParallelsDesktopConnectorSlaveComputer extends SlaveComputer
 		LOGGER.log(Level.SEVERE, "Starting slave '" + slaveName+ "'");
 		LOGGER.log(Level.SEVERE, "Starting virtual machine '" + vmId + "'");
 		RunVmCallable command = new RunVmCallable("start", vmId);
-		String callResult = getChannel().call(command);
+		getChannel().call(command);
 		LOGGER.log(Level.SEVERE, "Waiting for IP...");
 		String ip = getVmIPAddress(vmId);
 		LOGGER.log(Level.SEVERE, "Got IP address for VM " + vmId + ": " + ip);

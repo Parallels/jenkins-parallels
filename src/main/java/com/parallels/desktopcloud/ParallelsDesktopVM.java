@@ -34,11 +34,11 @@ import org.kohsuke.stapler.DataBoundConstructor;
 
 public class ParallelsDesktopVM implements Describable<ParallelsDesktopVM>
 {
-	private String vmid;
-	private String labels;
-	private String remoteFS;
+	private final String vmid;
+	private final String labels;
+	private final String remoteFS;
 	private String slaveName;
-	private ComputerLauncher launcher;
+	private final ComputerLauncher launcher;
 	private boolean provisioned = false;
 
 	@DataBoundConstructor

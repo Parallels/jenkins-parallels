@@ -39,11 +39,13 @@ public class ParallelsDesktopVMSlaveComputer extends SlaveComputer
 		super(slave);
 	}
 
+	@Override
 	public ParallelsDesktopVMSlave getNode()
 	{
 		return (ParallelsDesktopVMSlave)super.getNode();
 	}
 
+	@Override
 	protected void onRemoved()
 	{
 		LOGGER.log(Level.SEVERE, "!!!!!! ON REMOVED");
