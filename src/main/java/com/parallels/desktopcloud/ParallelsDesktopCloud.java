@@ -25,7 +25,6 @@
 package com.parallels.desktopcloud;
 
 import hudson.Extension;
-import hudson.model.Hudson;
 import hudson.model.Computer;
 import hudson.model.Descriptor;
 import hudson.model.Label;
@@ -42,6 +41,7 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import jenkins.model.Jenkins;
 import org.kohsuke.stapler.DataBoundConstructor;
 
 
@@ -105,7 +105,7 @@ public final class ParallelsDesktopCloud extends Cloud
 		try
 		{
 			ParallelsDesktopConnectorSlave slave = new ParallelsDesktopConnectorSlave("PDConnectorSlave", remoteFS, pdLauncher);
-			Hudson.getInstance().addNode(slave);
+			Jenkins.getInstance().addNode(slave);
 			return (ParallelsDesktopConnectorSlaveComputer)slave.toComputer();
 		}
 		catch (Descriptor.FormException ex)
