@@ -25,9 +25,9 @@
 package com.parallels.desktopcloud;
 
 import hudson.slaves.RetentionStrategy;
-import hudson.model.Hudson;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import jenkins.model.Jenkins;
 import org.kohsuke.accmod.Restricted;
 import org.kohsuke.accmod.restrictions.NoExternalUse;
 import org.kohsuke.stapler.DataBoundConstructor;
@@ -58,7 +58,7 @@ public class ParallelsDesktopCloudRetentionStrategy extends RetentionStrategy<Pa
 				LOGGER.log(Level.SEVERE, "Disconnecting computer...");
 				c.disconnect(null).get();
 				LOGGER.log(Level.SEVERE, "Removing node...");
-				Hudson.getInstance().removeNode(c.getNode());
+				Jenkins.getInstance().removeNode(c.getNode());
 				LOGGER.log(Level.SEVERE, "Node was removed.");
 			}
 			catch (Exception e)
