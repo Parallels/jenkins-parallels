@@ -38,7 +38,6 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.Callable;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import jenkins.model.Jenkins;
@@ -48,7 +47,6 @@ import org.kohsuke.stapler.DataBoundConstructor;
 public final class ParallelsDesktopCloud extends Cloud
 {
 	private static final Logger LOGGER = Logger.getLogger(ParallelsDesktopCloud.class.getName());
-	private static final AtomicInteger counter = new AtomicInteger();
 
 	private final List<ParallelsDesktopVM> vms;
 	private final ComputerLauncher pdLauncher;
@@ -80,9 +78,8 @@ public final class ParallelsDesktopCloud extends Cloud
 				continue;
 			if (!label.matches(Label.parse(vm.getLabels())))
 				continue;
-			final int count = counter.incrementAndGet();
 			final String vmId = vm.getVmid();
-			final String slaveName = "PD Slave #" + count;
+			final String slaveName = name + ": " + vmId;
 			vm.setSlaveName(slaveName);
 			vm.setProvisioned(true);
 			--excessWorkload;
