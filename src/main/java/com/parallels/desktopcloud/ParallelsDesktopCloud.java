@@ -101,7 +101,8 @@ public final class ParallelsDesktopCloud extends Cloud
 	{
 		try
 		{
-			ParallelsDesktopConnectorSlave slave = new ParallelsDesktopConnectorSlave("PDConnectorSlave", remoteFS, pdLauncher);
+			String slaveName = name + ": host slave";
+			ParallelsDesktopConnectorSlave slave = new ParallelsDesktopConnectorSlave(slaveName, remoteFS, pdLauncher);
 			Jenkins.getInstance().addNode(slave);
 			return (ParallelsDesktopConnectorSlaveComputer)slave.toComputer();
 		}
