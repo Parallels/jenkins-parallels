@@ -24,25 +24,18 @@
 
 package com.parallels.desktopcloud;
 
-import hudson.model.Slave;
-import hudson.slaves.SlaveComputer;
+import hudson.slaves.AbstractCloudComputer;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 
-public class ParallelsDesktopVMSlaveComputer extends SlaveComputer
+public class ParallelsDesktopVMSlaveComputer extends AbstractCloudComputer<ParallelsDesktopVMSlave>
 {
 	private static final Logger LOGGER = Logger.getLogger("PDVMSlaveComputer");
 
-	public ParallelsDesktopVMSlaveComputer(Slave slave)
+	public ParallelsDesktopVMSlaveComputer(ParallelsDesktopVMSlave slave)
 	{
 		super(slave);
-	}
-
-	@Override
-	public ParallelsDesktopVMSlave getNode()
-	{
-		return (ParallelsDesktopVMSlave)super.getNode();
 	}
 
 	@Override

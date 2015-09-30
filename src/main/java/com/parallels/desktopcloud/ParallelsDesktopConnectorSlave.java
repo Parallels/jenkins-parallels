@@ -24,31 +24,37 @@
 
 package com.parallels.desktopcloud;
 
-import hudson.model.Computer;
 import hudson.model.Descriptor;
-import hudson.model.Slave;
 import hudson.model.Node.Mode;
 import hudson.slaves.ComputerLauncher;
 import hudson.slaves.NodeProperty;
 import hudson.slaves.RetentionStrategy;
 import hudson.Extension;
+import hudson.model.Node;
+import hudson.model.TaskListener;
+import hudson.slaves.AbstractCloudComputer;
+import hudson.slaves.AbstractCloudSlave;
+import hudson.slaves.EphemeralNode;
 import java.io.IOException;
 import java.util.ArrayList;
 import org.kohsuke.stapler.DataBoundConstructor;
 
 
-public class ParallelsDesktopConnectorSlave extends Slave
+public class ParallelsDesktopConnectorSlave extends AbstractCloudSlave implements EphemeralNode
 {
+	private transient ParallelsDesktopCloud owner;
+	
 	@DataBoundConstructor
-	public ParallelsDesktopConnectorSlave(String name, String remoteFS, ComputerLauncher launcher)
+	public ParallelsDesktopConnectorSlave(ParallelsDesktopCloud owner, String name, String remoteFS, ComputerLauncher launcher)
 			throws IOException, Descriptor.FormException
 	{
 		super(name, "", remoteFS, 1, Mode.NORMAL, "", launcher,
 				new RetentionStrategy.Demand(1, 1), new ArrayList<NodeProperty<?>>());
+		this.owner = owner;
 	}
 
 	@Override
-	public Computer createComputer()
+	public AbstractCloudComputer createComputer()
 	{
 		return new ParallelsDesktopConnectorSlaveComputer(this);
 	}
@@ -58,6 +64,18 @@ public class ParallelsDesktopConnectorSlave extends Slave
 	{
 		String res = super.getRemoteFS();
 		return res;
+	}
+
+	@Override
+	public Node asNode()
+	{
+		return this;
+	}
+
+	@Override
+	protected void _terminate(TaskListener tl) throws IOException, InterruptedException
+	{
+		owner.connectorTerminated();
 	}
 
 	@Extension

@@ -90,6 +90,11 @@ public class ParallelsDesktopVM implements Describable<ParallelsDesktopVM>
 		return provisioned;
 	}
 
+	void onSlaveReleased(ParallelsDesktopVMSlave slave)
+	{
+		setProvisioned(false);
+	}
+
 	@Override
 	public Descriptor<ParallelsDesktopVM> getDescriptor()
 	{
