@@ -27,9 +27,9 @@ package com.parallels.desktopcloud;
 import java.lang.reflect.Field;
 
 import hudson.model.Node;
-import hudson.model.Slave;
 import hudson.remoting.Channel;
-import hudson.slaves.SlaveComputer;
+import hudson.security.Permission;
+import hudson.slaves.AbstractCloudComputer;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -44,11 +44,11 @@ import net.sf.json.JSONObject;
 import net.sf.json.JSONSerializer;
 
 
-public class ParallelsDesktopConnectorSlaveComputer extends SlaveComputer
+public class ParallelsDesktopConnectorSlaveComputer extends AbstractCloudComputer<ParallelsDesktopConnectorSlave>
 {
 	private static final Logger LOGGER = Logger.getLogger("PDConnectorSlaveComputer");
 
-	public ParallelsDesktopConnectorSlaveComputer(Slave slave)
+	public ParallelsDesktopConnectorSlaveComputer(ParallelsDesktopConnectorSlave slave)
 	{
 		super(slave);
 	}
@@ -182,5 +182,13 @@ public class ParallelsDesktopConnectorSlaveComputer extends SlaveComputer
 			}
 			return result;
 		}
+	}
+	
+	@Override
+	public boolean hasPermission(Permission permission)
+	{
+		if (permission == CONFIGURE)
+			return false;
+		return super.hasPermission(permission);
 	}
 }

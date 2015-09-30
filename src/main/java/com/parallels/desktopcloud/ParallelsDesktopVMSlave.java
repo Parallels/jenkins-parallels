@@ -25,11 +25,14 @@
 package com.parallels.desktopcloud;
 
 import hudson.model.Descriptor;
-import hudson.model.Slave;
+import hudson.slaves.AbstractCloudSlave;
+import hudson.model.TaskListener;
+import hudson.slaves.AbstractCloudComputer;
 import hudson.model.Node.Mode;
-import hudson.model.Computer;
 import hudson.slaves.NodeProperty;
 import hudson.Extension;
+import hudson.model.Node;
+import hudson.slaves.EphemeralNode;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.logging.Level;
@@ -37,7 +40,7 @@ import java.util.logging.Logger;
 import org.kohsuke.stapler.DataBoundConstructor;
 
 
-public class ParallelsDesktopVMSlave extends Slave
+public class ParallelsDesktopVMSlave extends AbstractCloudSlave implements EphemeralNode
 {
 	private static final Logger LOGGER = Logger.getLogger("PDVMSlave");
 	private final transient ParallelsDesktopConnectorSlaveComputer connector;
@@ -54,16 +57,24 @@ public class ParallelsDesktopVMSlave extends Slave
 	}
 
 	@Override
-	public Computer createComputer()
+	public AbstractCloudComputer createComputer()
 	{
 		return new ParallelsDesktopVMSlaveComputer(this);
 	}
 
-	public void stop()
+	@Override
+	protected void _terminate(TaskListener tl) throws IOException, InterruptedException
 	{
-		LOGGER.log(Level.SEVERE, "!!! Stop node '" + getNodeName() + "', id '" + vm.getVmid() + "'");
+		LOGGER.log(Level.SEVERE, "!!! Terminating slave node '" + getNodeName() + "', id '" + vm.getVmid() + "'");
 		connector.stopVM(vm.getVmid());
-		vm.setProvisioned(false);
+		vm.onSlaveReleased(this);
+		LOGGER.log(Level.SEVERE, "Node was terminated.");
+	}
+
+	@Override
+	public Node asNode()
+	{
+		return this;
 	}
 
 	@Extension

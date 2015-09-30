@@ -32,7 +32,6 @@ import hudson.model.Node;
 import hudson.slaves.Cloud;
 import hudson.slaves.ComputerLauncher;
 import hudson.slaves.NodeProvisioner;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -51,6 +50,7 @@ public final class ParallelsDesktopCloud extends Cloud
 	private final List<ParallelsDesktopVM> vms;
 	private final ComputerLauncher pdLauncher;
 	private final String remoteFS;
+	private transient ParallelsDesktopConnectorSlave connectorSlave;
 
 	@DataBoundConstructor
 	public ParallelsDesktopCloud(String name, String remoteFS, ComputerLauncher pdLauncher,
@@ -101,24 +101,24 @@ public final class ParallelsDesktopCloud extends Cloud
 	{
 		try
 		{
-			String slaveName = name + ": host slave";
-			ParallelsDesktopConnectorSlave slave = new ParallelsDesktopConnectorSlave(slaveName, remoteFS, pdLauncher);
-			Jenkins.getInstance().addNode(slave);
-			return (ParallelsDesktopConnectorSlaveComputer)slave.toComputer();
-		}
-		catch (Descriptor.FormException ex)
-		{
-			LOGGER.log(Level.SEVERE, null, ex);
-		}
-		catch (IOException ex)
-		{
-			LOGGER.log(Level.SEVERE, null, ex);
+			if (connectorSlave == null)
+			{
+				String slaveName = name + ": host slave";
+				connectorSlave = new ParallelsDesktopConnectorSlave(this, slaveName, remoteFS, pdLauncher);
+				Jenkins.getInstance().addNode(connectorSlave);
+			}
+			return (ParallelsDesktopConnectorSlaveComputer)connectorSlave.toComputer();
 		}
 		catch(Exception ex)
 		{
 			LOGGER.log(Level.SEVERE, null, ex);
 		}
 		return null;
+	}
+
+	void connectorTerminated()
+	{
+		connectorSlave = null;
 	}
 
 	@Override
