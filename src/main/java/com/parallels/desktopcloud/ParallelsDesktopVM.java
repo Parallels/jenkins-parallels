@@ -37,9 +37,9 @@ public class ParallelsDesktopVM implements Describable<ParallelsDesktopVM>
 	private final String vmid;
 	private final String labels;
 	private final String remoteFS;
-	private String slaveName;
+	private transient String slaveName;
 	private final ComputerLauncher launcher;
-	private boolean provisioned = false;
+	private transient boolean provisioned = false;
 
 	@DataBoundConstructor
 	public ParallelsDesktopVM(String vmid, String labels, String remoteFS, ComputerLauncher launcher)
