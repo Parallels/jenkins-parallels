@@ -24,6 +24,7 @@
 
 package com.parallels.desktopcloud;
 
+import hudson.security.Permission;
 import hudson.slaves.AbstractCloudComputer;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -42,5 +43,13 @@ public class ParallelsDesktopVMSlaveComputer extends AbstractCloudComputer<Paral
 	protected void onRemoved()
 	{
 		LOGGER.log(Level.SEVERE, "!!!!!! ON REMOVED");
+	}
+	
+	@Override
+	public boolean hasPermission(Permission permission)
+	{
+		if (permission == CONFIGURE)
+			return false;
+		return super.hasPermission(permission);
 	}
 }

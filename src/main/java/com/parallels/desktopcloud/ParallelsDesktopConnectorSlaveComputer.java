@@ -28,6 +28,7 @@ import java.lang.reflect.Field;
 
 import hudson.model.Node;
 import hudson.remoting.Channel;
+import hudson.security.Permission;
 import hudson.slaves.AbstractCloudComputer;
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -181,5 +182,13 @@ public class ParallelsDesktopConnectorSlaveComputer extends AbstractCloudCompute
 			}
 			return result;
 		}
+	}
+	
+	@Override
+	public boolean hasPermission(Permission permission)
+	{
+		if (permission == CONFIGURE)
+			return false;
+		return super.hasPermission(permission);
 	}
 }
