@@ -43,6 +43,15 @@ THE SOFTWARE.
 			<url>http://opensource.org/licenses/MIT</url>
 		</license>
 	</licenses>
+
+	<developers>
+		<developer>
+			<id>romankulikov</id>
+			<name>Roman Kulikov</name>
+			<email>roman.kulikov@gmail.com</email>
+		</developer>
+	</developers>
+
 	<!-- Assuming you want to host on @jenkinsci:
 	<scm>
 		<connection>scm:git:git://github.com/jenkinsci/${project.artifactId}-plugin.git</connection>
