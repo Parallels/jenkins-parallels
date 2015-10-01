@@ -28,40 +28,47 @@ THE SOFTWARE.
 	<f:entry field="name" title="Name">
 		<f:textbox default="Parallels Desktop Cloud"/>
 	</f:entry>
-	<f:entry title="${%Remote FS root}" field="remoteFS">
-		<f:textbox/>
-	</f:entry>
 
-	<f:dropdownList name="pdLauncher" title="${%Secondary launch method}"
-			help="${descriptor.getHelpFile('launcher')}">
-		<j:forEach var="d" items="${h.getComputerLauncherDescriptors()}" varStatus="loop">
-			<f:dropdownListBlock value="${d.clazz.name}" name="${d.displayName}"
-					selected="${instance.pdLauncher.descriptor==d}"
-					title="${d.displayName}">
-				<j:set var="descriptor" value="${d}"/>
-				<j:set var="instance"
-					value="${instance.pdLauncher.descriptor==d ? instance.pdLauncher : null}"/>
-					<tr>
-						<td>
-							<input type="hidden" name="stapler-class" value="${d.clazz.name}"/>
-						</td>
-					</tr>
-				<st:include from="${d}" page="${d.configPage}" optional="true"/>
-			</f:dropdownListBlock>
-		</j:forEach>
-	</f:dropdownList>
+	<f:section title="${%Host slave}">
+		<f:entry title="${%Remote FS root}" field="remoteFS">
+			<f:textbox/>
+		</f:entry>
+		<f:entry name="useAsBuilder" title="${%Use host slave for build tasks}" field="useConnectorAsBuilder">
+			<f:checkbox/>
+		</f:entry>
+		<f:dropdownList name="pdLauncher" title="${%Secondary launch method}"
+				help="${descriptor.getHelpFile('launcher')}">
+			<j:forEach var="d" items="${h.getComputerLauncherDescriptors()}" varStatus="loop">
+				<f:dropdownListBlock value="${d.clazz.name}" name="${d.displayName}"
+						selected="${instance.pdLauncher.descriptor==d}"
+						title="${d.displayName}">
+					<j:set var="descriptor" value="${d}"/>
+					<j:set var="instance"
+						value="${instance.pdLauncher.descriptor==d ? instance.pdLauncher : null}"/>
+						<tr>
+							<td>
+								<input type="hidden" name="stapler-class" value="${d.clazz.name}"/>
+							</td>
+						</tr>
+					<st:include from="${d}" page="${d.configPage}" optional="true"/>
+				</f:dropdownListBlock>
+			</j:forEach>
+		</f:dropdownList>
+	</f:section>
 
-	<f:entry title="${%Virtual Machines}" description="${%List of virtual machines to be launched as slaves}">
-		<f:repeatable field="vms">
-			<div>
-				<table width="100%">
-					<st:include page="config.jelly" from="${descriptor}"
-						class="com.parallels.desktopcloud.ParallelsDesktopVM" />
-				</table>
-			</div>
-			<div align="right">
-				<f:repeatableDeleteButton/>
-			</div>
-		</f:repeatable>
-	</f:entry>
+	<f:section title="${%Virtual Machines}" description="${%List of virtual machines to be launched as slaves}">
+		<f:entry>
+			<f:repeatable field="vms">
+				<div>
+					<table width="100%">
+						<st:include page="config.jelly" from="${descriptor}"
+							class="com.parallels.desktopcloud.ParallelsDesktopVM" />
+					</table>
+				</div>
+				<div align="right">
+					<f:repeatableDeleteButton/>
+				</div>
+			</f:repeatable>
+		</f:entry>
+	</f:section>
 </j:jelly>

@@ -42,15 +42,19 @@ import org.kohsuke.stapler.DataBoundConstructor;
 
 public class ParallelsDesktopConnectorSlave extends AbstractCloudSlave implements EphemeralNode
 {
-	private transient ParallelsDesktopCloud owner;
+	private final transient ParallelsDesktopCloud owner;
+	private final transient boolean useAsBuilder;
 	
 	@DataBoundConstructor
-	public ParallelsDesktopConnectorSlave(ParallelsDesktopCloud owner, String name, String remoteFS, ComputerLauncher launcher)
+	public ParallelsDesktopConnectorSlave(ParallelsDesktopCloud owner, String name, String remoteFS, 
+			ComputerLauncher launcher, boolean useAsBuilder)
 			throws IOException, Descriptor.FormException
 	{
 		super(name, "", remoteFS, 1, Mode.NORMAL, "", launcher,
-				new RetentionStrategy.Demand(1, 1), new ArrayList<NodeProperty<?>>());
+				useAsBuilder ? new RetentionStrategy.Always() : new RetentionStrategy.Demand(1, 1),
+				new ArrayList<NodeProperty<?>>());
 		this.owner = owner;
+		this.useAsBuilder = useAsBuilder;
 	}
 
 	@Override
@@ -76,6 +80,12 @@ public class ParallelsDesktopConnectorSlave extends AbstractCloudSlave implement
 	protected void _terminate(TaskListener tl) throws IOException, InterruptedException
 	{
 		owner.connectorTerminated();
+	}
+	
+	@Override
+	public Node.Mode getMode()
+	{
+		return useAsBuilder ? Node.Mode.NORMAL : Node.Mode.EXCLUSIVE;
 	}
 
 	@Extension

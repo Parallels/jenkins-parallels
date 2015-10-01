@@ -24,8 +24,6 @@
 
 package com.parallels.desktopcloud;
 
-import java.lang.reflect.Field;
-
 import hudson.model.Node;
 import hudson.remoting.Channel;
 import hudson.security.Permission;
@@ -36,6 +34,7 @@ import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.concurrent.ExecutionException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import jenkins.security.MasterToSlaveCallable;
@@ -58,14 +57,7 @@ public class ParallelsDesktopConnectorSlaveComputer extends AbstractCloudCompute
 		try
 		{
 			RunVmCallable command = new RunVmCallable("list", "-i", "--json");
-			Channel channel = getChannel();
-			if (channel == null)
-			{
-				LOGGER.log(Level.SEVERE, "Connecting to node");
-				connect(false).get();
-			}
-			channel = getChannel();
-			String callResult = channel.call(command);
+			String callResult = forceGetChannel().call(command);
 			JSONArray vms = (JSONArray)JSONSerializer.toJSON(callResult);
 			for (int i = 0; i < vms.size(); i++)
 			{
@@ -88,7 +80,7 @@ public class ParallelsDesktopConnectorSlaveComputer extends AbstractCloudCompute
 		for (int i = 0; i < TIMEOUT; ++i)
 		{
 			RunVmCallable command = new RunVmCallable("list", "-f", "--json", vmId);
-			String callResult = getChannel().call(command);
+			String callResult = forceGetChannel().call(command);
 			LOGGER.log(Level.SEVERE, " - (" + i + "/" + TIMEOUT + ") calling for IP");
 			LOGGER.log(Level.SEVERE, callResult);
 			JSONArray vms = (JSONArray)JSONSerializer.toJSON(callResult);
@@ -108,21 +100,17 @@ public class ParallelsDesktopConnectorSlaveComputer extends AbstractCloudCompute
 		LOGGER.log(Level.SEVERE, "Starting slave '" + slaveName+ "'");
 		LOGGER.log(Level.SEVERE, "Starting virtual machine '" + vmId + "'");
 		RunVmCallable command = new RunVmCallable("start", vmId);
-		getChannel().call(command);
-		LOGGER.log(Level.SEVERE, "Waiting for IP...");
-		String ip = getVmIPAddress(vmId);
-		LOGGER.log(Level.SEVERE, "Got IP address for VM " + vmId + ": " + ip);
 		try
 		{
-			Class<?> c = vm.getLauncher().getClass();
-			Field f = c.getDeclaredField("host");
-			f.setAccessible(true);
-			f.set(vm.getLauncher(), ip);
-			f.setAccessible(false);
+			forceGetChannel().call(command);
+			LOGGER.log(Level.SEVERE, "Waiting for IP...");
+			String ip = getVmIPAddress(vmId);
+			LOGGER.log(Level.SEVERE, "Got IP address for VM " + vmId + ": " + ip);
+			vm.setLauncherIP(ip);
 		}
-		catch (NoSuchFieldException x)
+		catch (Exception ex)
 		{
-			LOGGER.log(Level.SEVERE, "No 'host' field in launcher of " + slaveName);
+			LOGGER.log(Level.SEVERE, ex.toString());
 		}
 		return new ParallelsDesktopVMSlave(vm, this);
 	}
@@ -133,13 +121,24 @@ public class ParallelsDesktopConnectorSlaveComputer extends AbstractCloudCompute
 		{
 			LOGGER.log(Level.SEVERE, "Suspending...");
 			RunVmCallable command = new RunVmCallable("suspend", vmId);
-			String res = getChannel().call(command);
+			String res = forceGetChannel().call(command);
 			LOGGER.log(Level.SEVERE, res);
 		}
 		catch (Exception ex)
 		{
 			LOGGER.log(Level.SEVERE, ex.toString());
 		}
+	}
+	
+	public Channel forceGetChannel() throws InterruptedException, ExecutionException
+	{
+		Channel channel = getChannel();
+		if (channel == null)
+		{
+			connect(true).get();
+			channel = getChannel();
+		}
+		return channel;
 	}
 
 	private static final class RunVmCallable extends MasterToSlaveCallable<String, IOException>
