@@ -79,7 +79,7 @@ public final class ParallelsDesktopCloud extends Cloud
 			if (!label.matches(Label.parse(vm.getLabels())))
 				continue;
 			final String vmId = vm.getVmid();
-			final String slaveName = name + ": " + vmId;
+			final String slaveName = name + " " + vmId;
 			vm.setSlaveName(slaveName);
 			vm.setProvisioned(true);
 			--excessWorkload;
@@ -103,7 +103,7 @@ public final class ParallelsDesktopCloud extends Cloud
 		{
 			if (connectorSlave == null)
 			{
-				String slaveName = name + ": host slave";
+				String slaveName = name + " host slave";
 				connectorSlave = new ParallelsDesktopConnectorSlave(this, slaveName, remoteFS, pdLauncher);
 				Jenkins.getInstance().addNode(connectorSlave);
 			}
