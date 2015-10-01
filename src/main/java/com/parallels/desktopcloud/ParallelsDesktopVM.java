@@ -28,12 +28,17 @@ import hudson.Extension;
 import hudson.model.Describable;
 import hudson.model.Descriptor;
 import hudson.slaves.ComputerLauncher;
+import java.lang.reflect.Field;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import jenkins.model.Jenkins;
 import org.kohsuke.stapler.DataBoundConstructor;
 
 
 public class ParallelsDesktopVM implements Describable<ParallelsDesktopVM>
 {
+	private static final Logger LOGGER = Logger.getLogger("ParallelsDesktopVM");
+
 	private final String vmid;
 	private final String labels;
 	private final String remoteFS;
@@ -93,6 +98,22 @@ public class ParallelsDesktopVM implements Describable<ParallelsDesktopVM>
 	void onSlaveReleased(ParallelsDesktopVMSlave slave)
 	{
 		setProvisioned(false);
+	}
+
+	void setLauncherIP(String ip)
+	{
+		try
+		{
+			Class<?> c = launcher.getClass();
+			Field f = c.getDeclaredField("host");
+			f.setAccessible(true);
+			f.set(launcher, ip);
+			f.setAccessible(false);
+		}
+		catch (Exception ex)
+		{
+			LOGGER.log(Level.SEVERE, ex.toString());
+		}
 	}
 
 	@Override

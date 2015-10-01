@@ -42,7 +42,7 @@ import org.kohsuke.stapler.DataBoundConstructor;
 
 public class ParallelsDesktopConnectorSlave extends AbstractCloudSlave implements EphemeralNode
 {
-	private transient ParallelsDesktopCloud owner;
+	private final transient ParallelsDesktopCloud owner;
 	
 	@DataBoundConstructor
 	public ParallelsDesktopConnectorSlave(ParallelsDesktopCloud owner, String name, String remoteFS, ComputerLauncher launcher)
