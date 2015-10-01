@@ -99,9 +99,17 @@ public class ParallelsDesktopConnectorSlaveComputer extends AbstractCloudCompute
 		String slaveName = vm.getSlaveName();
 		LOGGER.log(Level.SEVERE, "Starting slave '" + slaveName+ "'");
 		LOGGER.log(Level.SEVERE, "Starting virtual machine '" + vmId + "'");
-		RunVmCallable command = new RunVmCallable("start", vmId);
 		try
 		{
+			if (vm.getPostBuildBehaviorValue() == ParallelsDesktopVM.PostBuildBehaviors.ReturnPrevState)
+			{
+				RunVmCallable command = new RunVmCallable("list", "-f", "--json", vmId);
+				String callResult = forceGetChannel().call(command);
+				JSONArray vms = (JSONArray)JSONSerializer.toJSON(callResult);
+				JSONObject vmInfo = vms.getJSONObject(0);
+				vm.parsePrevState(vmInfo.getString("status"));
+			}
+			RunVmCallable command = new RunVmCallable("start", vmId);
 			forceGetChannel().call(command);
 			LOGGER.log(Level.SEVERE, "Waiting for IP...");
 			String ip = getVmIPAddress(vmId);
@@ -115,12 +123,18 @@ public class ParallelsDesktopConnectorSlaveComputer extends AbstractCloudCompute
 		return new ParallelsDesktopVMSlave(vm, this);
 	}
 
-	public void stopVM(String vmId)
+	public void postBuildAction(ParallelsDesktopVM vm)
 	{
 		try
 		{
-			LOGGER.log(Level.SEVERE, "Suspending...");
-			RunVmCallable command = new RunVmCallable("suspend", vmId);
+			String action = vm.getPostBuildCommand();
+			if (action == null)
+			{
+				LOGGER.log(Level.SEVERE, "Keep running VM %s", vm.getVmid());
+				return;
+			}
+			LOGGER.log(Level.SEVERE, "Post build action for '" + vm.getVmid() + "': " + action);
+			RunVmCallable command = new RunVmCallable(action, vm.getVmid());
 			String res = forceGetChannel().call(command);
 			LOGGER.log(Level.SEVERE, res);
 		}

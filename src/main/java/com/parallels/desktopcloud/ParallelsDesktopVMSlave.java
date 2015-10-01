@@ -66,7 +66,7 @@ public class ParallelsDesktopVMSlave extends AbstractCloudSlave implements Ephem
 	protected void _terminate(TaskListener tl) throws IOException, InterruptedException
 	{
 		LOGGER.log(Level.SEVERE, "!!! Terminating slave node '" + getNodeName() + "', id '" + vm.getVmid() + "'");
-		connector.stopVM(vm.getVmid());
+		connector.postBuildAction(vm);
 		vm.onSlaveReleased(this);
 		LOGGER.log(Level.SEVERE, "Node was terminated.");
 	}

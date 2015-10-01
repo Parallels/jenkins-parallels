@@ -38,6 +38,10 @@ THE SOFTWARE.
 		<f:textbox/>
 	</f:entry>
 
+	<f:entry title="${%Post-build behavior}" field="postBuildBehavior">
+		<f:select />
+	</f:entry>
+
 	<f:dropdownList name="launcher" title="${%Secondary launch method}"
 			help="${descriptor.getHelpFile('launcher')}">
 		<j:forEach var="d" items="${h.getComputerLauncherDescriptors()}" varStatus="loop">
