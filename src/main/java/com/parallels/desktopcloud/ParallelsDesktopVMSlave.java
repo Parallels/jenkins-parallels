@@ -36,13 +36,12 @@ import hudson.slaves.EphemeralNode;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.logging.Level;
-import java.util.logging.Logger;
 import org.kohsuke.stapler.DataBoundConstructor;
 
 
 public class ParallelsDesktopVMSlave extends AbstractCloudSlave implements EphemeralNode
 {
-	private static final Logger LOGGER = Logger.getLogger("PDVMSlave");
+	private static final ParallelsLogger LOGGER = ParallelsLogger.getLogger("PDVMSlave");
 	private final transient ParallelsDesktopConnectorSlaveComputer connector;
 	private final ParallelsDesktopVM vm;
 
@@ -65,7 +64,7 @@ public class ParallelsDesktopVMSlave extends AbstractCloudSlave implements Ephem
 	@Override
 	protected void _terminate(TaskListener tl) throws IOException, InterruptedException
 	{
-		LOGGER.log(Level.SEVERE, "!!! Terminating slave node '" + getNodeName() + "', id '" + vm.getVmid() + "'");
+		LOGGER.log(Level.SEVERE, "!!! Terminating slave node '%s', id '%s'", getNodeName(), vm.getVmid());
 		connector.postBuildAction(vm);
 		vm.onSlaveReleased(this);
 		LOGGER.log(Level.SEVERE, "Node was terminated.");

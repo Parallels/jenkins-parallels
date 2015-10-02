@@ -31,14 +31,13 @@ import hudson.slaves.ComputerLauncher;
 import hudson.util.ListBoxModel;
 import java.lang.reflect.Field;
 import java.util.logging.Level;
-import java.util.logging.Logger;
 import jenkins.model.Jenkins;
 import org.kohsuke.stapler.DataBoundConstructor;
 
 
 public class ParallelsDesktopVM implements Describable<ParallelsDesktopVM>
 {
-	private static final Logger LOGGER = Logger.getLogger("ParallelsDesktopVM");
+	private static final ParallelsLogger LOGGER = ParallelsLogger.getLogger("ParallelsDesktopVM");
 
 	public enum PostBuildBehaviors
 	{
@@ -78,7 +77,7 @@ public class ParallelsDesktopVM implements Describable<ParallelsDesktopVM>
 		}
 		catch(Exception ex)
 		{
-			LOGGER.log(Level.SEVERE, ex.toString());
+			LOGGER.log(Level.SEVERE, "Error: %s", ex);
 		}
 		if (this.postBuildBehavior == null)
 			this.postBuildBehavior = PostBuildBehaviors.Suspend;
@@ -149,7 +148,7 @@ public class ParallelsDesktopVM implements Describable<ParallelsDesktopVM>
 			prevVmState = VMStates.Suspended;
 		else
 		{
-			LOGGER.log(Level.SEVERE, "Unexpected VM '" + vmid + "' state: " + state);
+			LOGGER.log(Level.SEVERE, "Unexpected VM '%s' state: %s", vmid, state);
 			prevVmState = VMStates.Suspended;
 		}
 	}
@@ -196,7 +195,7 @@ public class ParallelsDesktopVM implements Describable<ParallelsDesktopVM>
 		}
 		catch (Exception ex)
 		{
-			LOGGER.log(Level.SEVERE, ex.toString());
+			LOGGER.log(Level.SEVERE, "Error: %s", ex);
 		}
 	}
 
@@ -217,12 +216,12 @@ public class ParallelsDesktopVM implements Describable<ParallelsDesktopVM>
 
 		public ListBoxModel doFillPostBuildBehaviorItems()
 		{
-            ListBoxModel m = new ListBoxModel();
-            m.add(Messages.Parallels_Behavior_Suspend(), PostBuildBehaviors.Suspend.name());
-            m.add(Messages.Parallels_Behavior_Stop(), PostBuildBehaviors.Stop.name());
-            m.add(Messages.Parallels_Behavior_KeepRunning(), PostBuildBehaviors.KeepRunning.name());
-            m.add(Messages.Parallels_Behavior_ReturnPrevState(), PostBuildBehaviors.ReturnPrevState.name());
-            return m;
-        }
+			ListBoxModel m = new ListBoxModel();
+			m.add(Messages.Parallels_Behavior_Suspend(), PostBuildBehaviors.Suspend.name());
+			m.add(Messages.Parallels_Behavior_Stop(), PostBuildBehaviors.Stop.name());
+			m.add(Messages.Parallels_Behavior_KeepRunning(), PostBuildBehaviors.KeepRunning.name());
+			m.add(Messages.Parallels_Behavior_ReturnPrevState(), PostBuildBehaviors.ReturnPrevState.name());
+			return m;
+		}
 	}
 }
