@@ -34,6 +34,7 @@ import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.regex.*;
 import java.util.concurrent.ExecutionException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -79,13 +80,21 @@ public class ParallelsDesktopConnectorSlaveComputer extends AbstractCloudCompute
 		int TIMEOUT = 60;
 		for (int i = 0; i < TIMEOUT; ++i)
 		{
-			RunVmCallable command = new RunVmCallable("list", "-f", "--json", vmId);
+			RunVmCallable command = new RunVmCallable("exec", vmId, "ifconfig");
 			String callResult = forceGetChannel().call(command);
-			LOGGER.log(Level.SEVERE, " - (" + i + "/" + TIMEOUT + ") calling for IP");
-			LOGGER.log(Level.SEVERE, callResult);
-			JSONArray vms = (JSONArray)JSONSerializer.toJSON(callResult);
-			JSONObject vmInfo = vms.getJSONObject(0);
-			String ip = vmInfo.getString("ip_configured");
+			LOGGER.log(Level.SEVERE, "getVmIPAddress callResult:" + callResult);
+			String lines[] = callResult.split("\t");
+			Pattern pattern = Pattern.compile("(\\d{1,3}.\\d{1,3}.\\d{1,3}.\\d{1,3}).*broadcast");
+			String ip = "-";
+			for (String line : lines) {
+				Matcher matcher = pattern.matcher(line);
+				if (matcher.find()) {
+					LOGGER.log(Level.SEVERE, "getVmIPAddress matched line: " + matcher.group(0));
+					ip = matcher.group(1);
+					LOGGER.log(Level.SEVERE, "IP address: " + ip);
+					break;
+				}
+			}
 			if (!ip.equals("-"))
 				return ip;
 			Thread.sleep(1000);
@@ -129,7 +138,7 @@ public class ParallelsDesktopConnectorSlaveComputer extends AbstractCloudCompute
 			LOGGER.log(Level.SEVERE, ex.toString());
 		}
 	}
-	
+
 	public Channel forceGetChannel() throws InterruptedException, ExecutionException
 	{
 		Channel channel = getChannel();
@@ -145,7 +154,7 @@ public class ParallelsDesktopConnectorSlaveComputer extends AbstractCloudCompute
 	{
 		private static final String cmd = "/usr/local/bin/prlctl";
 		private final String[] params;
-		
+
 		public RunVmCallable(String... params)
 		{
 			this.params = params;
@@ -157,7 +166,7 @@ public class ParallelsDesktopConnectorSlaveComputer extends AbstractCloudCompute
 			List<String> cmds = new ArrayList<String>();
 			cmds.add(cmd);
 			cmds.addAll(Arrays.asList(this.params));
-			
+
 			LOGGER.log(Level.SEVERE, "Running command:");
 			for (String s: cmds)
 				LOGGER.log(Level.SEVERE, " [" + s + "]");
@@ -167,7 +176,7 @@ public class ParallelsDesktopConnectorSlaveComputer extends AbstractCloudCompute
 			BufferedReader in = new BufferedReader(new InputStreamReader(pr.getInputStream()));
 			String line;
 			String result = "";
-			while ((line = in.readLine()) != null) 
+			while ((line = in.readLine()) != null)
 			{
 				result += line;
 			}
@@ -182,7 +191,7 @@ public class ParallelsDesktopConnectorSlaveComputer extends AbstractCloudCompute
 			return result;
 		}
 	}
-	
+
 	@Override
 	public boolean hasPermission(Permission permission)
 	{
