@@ -24,31 +24,28 @@
 
 package com.parallels.desktopcloud;
 
-import hudson.security.Permission;
-import hudson.slaves.AbstractCloudComputer;
 import java.util.logging.Level;
+import java.util.logging.Logger;
 
-
-public class ParallelsDesktopVMSlaveComputer extends AbstractCloudComputer<ParallelsDesktopVMSlave>
+public class ParallelsLogger
 {
-	private static final ParallelsLogger LOGGER = ParallelsLogger.getLogger("PDVMSlaveComputer");
-
-	public ParallelsDesktopVMSlaveComputer(ParallelsDesktopVMSlave slave)
+	private final Logger nativeLogger;
+	
+	public ParallelsLogger(String name)
 	{
-		super(slave);
-	}
-
-	@Override
-	protected void onRemoved()
-	{
-		LOGGER.log(Level.SEVERE, "!!!!!! ON REMOVED");
+		nativeLogger = Logger.getLogger(name);
 	}
 	
-	@Override
-	public boolean hasPermission(Permission permission)
+	public void log(Level level, String message, Object... args)
 	{
-		if (permission == CONFIGURE)
-			return false;
-		return super.hasPermission(permission);
+		if (!nativeLogger.isLoggable(level))
+			return;
+		String text = String.format(message, args);
+		nativeLogger.log(level, text);
+	}
+	
+	public static ParallelsLogger getLogger(String name)
+	{
+		return new ParallelsLogger(name);
 	}
 }

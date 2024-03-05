@@ -36,7 +36,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.logging.Level;
-import java.util.logging.Logger;
 import jenkins.security.MasterToSlaveCallable;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
@@ -45,7 +44,7 @@ import net.sf.json.JSONSerializer;
 
 public class ParallelsDesktopConnectorSlaveComputer extends AbstractCloudComputer<ParallelsDesktopConnectorSlave>
 {
-	private static final Logger LOGGER = Logger.getLogger("PDConnectorSlaveComputer");
+	private static final ParallelsLogger LOGGER = ParallelsLogger.getLogger("PDConnectorSlaveComputer");
 
 	public ParallelsDesktopConnectorSlaveComputer(ParallelsDesktopConnectorSlave slave)
 	{
@@ -69,7 +68,7 @@ public class ParallelsDesktopConnectorSlaveComputer extends AbstractCloudCompute
 		}
 		catch (Exception ex)
 		{
-			LOGGER.log(Level.SEVERE, ex.toString());
+			LOGGER.log(Level.SEVERE, "Error: %s", ex);
 		}
 		return false;
 	}
@@ -81,8 +80,7 @@ public class ParallelsDesktopConnectorSlaveComputer extends AbstractCloudCompute
 		{
 			RunVmCallable command = new RunVmCallable("list", "-f", "--json", vmId);
 			String callResult = forceGetChannel().call(command);
-			LOGGER.log(Level.SEVERE, " - (" + i + "/" + TIMEOUT + ") calling for IP");
-			LOGGER.log(Level.SEVERE, callResult);
+			LOGGER.log(Level.SEVERE, " - (%d/%d) calling for IP. Result: %s", i, TIMEOUT, callResult);
 			JSONArray vms = (JSONArray)JSONSerializer.toJSON(callResult);
 			JSONObject vmInfo = vms.getJSONObject(0);
 			String ip = vmInfo.getString("ip_configured");
@@ -97,36 +95,50 @@ public class ParallelsDesktopConnectorSlaveComputer extends AbstractCloudCompute
 	{
 		String vmId = vm.getVmid();
 		String slaveName = vm.getSlaveName();
-		LOGGER.log(Level.SEVERE, "Starting slave '" + slaveName+ "'");
-		LOGGER.log(Level.SEVERE, "Starting virtual machine '" + vmId + "'");
-		RunVmCallable command = new RunVmCallable("start", vmId);
+		LOGGER.log(Level.SEVERE, "Starting slave '%s'", slaveName);
+		LOGGER.log(Level.SEVERE, "Starting virtual machine '%s'", vmId);
 		try
 		{
+			if (vm.getPostBuildBehaviorValue() == ParallelsDesktopVM.PostBuildBehaviors.ReturnPrevState)
+			{
+				RunVmCallable command = new RunVmCallable("list", "-f", "--json", vmId);
+				String callResult = forceGetChannel().call(command);
+				JSONArray vms = (JSONArray)JSONSerializer.toJSON(callResult);
+				JSONObject vmInfo = vms.getJSONObject(0);
+				vm.parsePrevState(vmInfo.getString("status"));
+			}
+			RunVmCallable command = new RunVmCallable("start", vmId);
 			forceGetChannel().call(command);
 			LOGGER.log(Level.SEVERE, "Waiting for IP...");
 			String ip = getVmIPAddress(vmId);
-			LOGGER.log(Level.SEVERE, "Got IP address for VM " + vmId + ": " + ip);
+			LOGGER.log(Level.SEVERE, "Got IP address for VM %s: %s", vmId, ip);
 			vm.setLauncherIP(ip);
 		}
 		catch (Exception ex)
 		{
-			LOGGER.log(Level.SEVERE, ex.toString());
+			LOGGER.log(Level.SEVERE, "Error: %s", ex);
 		}
 		return new ParallelsDesktopVMSlave(vm, this);
 	}
 
-	public void stopVM(String vmId)
+	public void postBuildAction(ParallelsDesktopVM vm)
 	{
 		try
 		{
-			LOGGER.log(Level.SEVERE, "Suspending...");
-			RunVmCallable command = new RunVmCallable("suspend", vmId);
+			String action = vm.getPostBuildCommand();
+			if (action == null)
+			{
+				LOGGER.log(Level.SEVERE, "Keep running VM %s", vm.getVmid());
+				return;
+			}
+			LOGGER.log(Level.SEVERE, "Post build action for '%s': %s", vm.getVmid(), action);
+			RunVmCallable command = new RunVmCallable(action, vm.getVmid());
 			String res = forceGetChannel().call(command);
-			LOGGER.log(Level.SEVERE, res);
+			LOGGER.log(Level.SEVERE, "Result: %s", res);
 		}
 		catch (Exception ex)
 		{
-			LOGGER.log(Level.SEVERE, ex.toString());
+			LOGGER.log(Level.SEVERE, "Error: %s", ex);
 		}
 	}
 	
@@ -160,7 +172,7 @@ public class ParallelsDesktopConnectorSlaveComputer extends AbstractCloudCompute
 			
 			LOGGER.log(Level.SEVERE, "Running command:");
 			for (String s: cmds)
-				LOGGER.log(Level.SEVERE, " [" + s + "]");
+				LOGGER.log(Level.SEVERE, " [%s]", s);
 			ProcessBuilder pb = new ProcessBuilder(cmds);
 			pb.redirectErrorStream(true);
 			Process pr = pb.start();
@@ -177,7 +189,7 @@ public class ParallelsDesktopConnectorSlaveComputer extends AbstractCloudCompute
 			}
 			catch (InterruptedException ex)
 			{
-				LOGGER.log(Level.SEVERE, ex.toString());
+				LOGGER.log(Level.SEVERE, "Error: %s", ex.toString());
 			}
 			return result;
 		}

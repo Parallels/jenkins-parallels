@@ -26,7 +26,6 @@ package com.parallels.desktopcloud;
 
 import hudson.slaves.RetentionStrategy;
 import java.util.logging.Level;
-import java.util.logging.Logger;
 import org.kohsuke.accmod.Restricted;
 import org.kohsuke.accmod.restrictions.NoExternalUse;
 import org.kohsuke.stapler.DataBoundConstructor;
@@ -34,7 +33,7 @@ import org.kohsuke.stapler.DataBoundConstructor;
 
 public class ParallelsDesktopCloudRetentionStrategy extends RetentionStrategy<ParallelsDesktopVMSlaveComputer>
 {
-	private static final Logger LOGGER = Logger.getLogger("PDCloudRetentionStrategy");
+	private static final ParallelsLogger LOGGER = ParallelsLogger.getLogger("PDCloudRetentionStrategy");
 
 	@DataBoundConstructor
 	public ParallelsDesktopCloudRetentionStrategy()
@@ -45,7 +44,7 @@ public class ParallelsDesktopCloudRetentionStrategy extends RetentionStrategy<Pa
 	@Override
 	public long check(ParallelsDesktopVMSlaveComputer c)
 	{
-		LOGGER.log(Level.SEVERE, "Check VM computer " +  c.getName());
+		LOGGER.log(Level.SEVERE, "Check VM computer %s", c.getName());
 		if (c.isOffline())
 			return 1;
 		if (c.isIdle())
@@ -58,7 +57,7 @@ public class ParallelsDesktopCloudRetentionStrategy extends RetentionStrategy<Pa
 			}
 			catch (Exception e)
 			{
-				LOGGER.log(Level.SEVERE, e.toString());
+				LOGGER.log(Level.SEVERE, "Error: %s", e);
 			}
 		}
 		return 1;
@@ -67,7 +66,7 @@ public class ParallelsDesktopCloudRetentionStrategy extends RetentionStrategy<Pa
 	@Override
 	public void start(ParallelsDesktopVMSlaveComputer c)
 	{
-		LOGGER.log(Level.SEVERE, "Starting VM computer " + c.getName());
+		LOGGER.log(Level.SEVERE, "Starting VM computer %s", c.getName());
 		c.connect(false);
 	}
 

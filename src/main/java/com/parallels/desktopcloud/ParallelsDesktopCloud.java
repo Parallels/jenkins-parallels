@@ -38,14 +38,13 @@ import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.logging.Level;
-import java.util.logging.Logger;
 import jenkins.model.Jenkins;
 import org.kohsuke.stapler.DataBoundConstructor;
 
 
 public final class ParallelsDesktopCloud extends Cloud
 {
-	private static final Logger LOGGER = Logger.getLogger(ParallelsDesktopCloud.class.getName());
+	private static final ParallelsLogger LOGGER = ParallelsLogger.getLogger(ParallelsDesktopCloud.class.getName());
 
 	private final List<ParallelsDesktopVM> vms;
 	private final ComputerLauncher pdLauncher;
@@ -70,7 +69,7 @@ public final class ParallelsDesktopCloud extends Cloud
 	@Override
 	public Collection<NodeProvisioner.PlannedNode> provision(Label label, int excessWorkload)
 	{
-		LOGGER.log(Level.SEVERE, "Going to provision " + excessWorkload + " executors");
+		LOGGER.log(Level.SEVERE, "Going to provision %d executors", excessWorkload);
 		Collection<NodeProvisioner.PlannedNode> result = new ArrayList<NodeProvisioner.PlannedNode>();
 		final ParallelsDesktopConnectorSlaveComputer connector = getConnector();
 		for (int i = 0; (i < vms.size()) && (excessWorkload > 0); i++)
@@ -113,7 +112,7 @@ public final class ParallelsDesktopCloud extends Cloud
 		}
 		catch(Exception ex)
 		{
-			LOGGER.log(Level.SEVERE, null, ex);
+			LOGGER.log(Level.SEVERE, "Error: %s", ex);
 		}
 		return null;
 	}
